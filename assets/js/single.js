@@ -1,33 +1,8 @@
 var repoNameEl = document.querySelector("#repo-name");
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
-var repoNameEl = document.querySelector("#repo-name");
 
-var getRepoIssues = function (repo) {
-  // format the github api url
-  var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
-
-// make a get request to url
-fetch(apiUrl).then(function(response) {
-  // request was successful
-  if (response.ok) {
-    response.json().then(function(data) {
-      displayIssues(data);
-
-      // check if api has paginated issues
-      if (response.headers.get("Link")) {
-        displayWarning(repo);
-      }
-    });
-  } 
-  else {
-    // if not successful, redirect to homepage
-    document.location.replace("./index.html");
-  }
-});
-}
-
-var getRepoName = function () {
+var getRepoName = function() {
   // grab repo name from url query string
   var queryString = document.location.search;
   var repoName = queryString.split("=")[1];
@@ -43,7 +18,30 @@ var getRepoName = function () {
   }
 };
 
-var displayIssues = function (issues) {
+var getRepoIssues = function(repo) {
+  // format the github api url
+  var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
+
+  // make a get request to url
+  fetch(apiUrl).then(function(response) {
+    // request was successful
+    if (response.ok) {
+      response.json().then(function(data) {
+        displayIssues(data);
+
+        // check if api has paginated issues
+        if (response.headers.get("Link")) {
+          displayWarning(repo);
+        }
+      });
+    } else {
+      // if not successful, redirect to homepage
+      document.location.replace("./index.html");
+    }
+  });
+};
+
+var displayIssues = function(issues) {
   if (issues.length === 0) {
     issueContainerEl.textContent = "This repo has no open issues!";
     return;
@@ -61,7 +59,6 @@ var displayIssues = function (issues) {
     var titleEl = document.createElement("span");
     titleEl.textContent = issues[i].title;
 
-
     // append to container
     issueEl.appendChild(titleEl);
 
@@ -71,8 +68,7 @@ var displayIssues = function (issues) {
     // check if issue is an actual issue or a pull request
     if (issues[i].pull_request) {
       typeEl.textContent = "(Pull request)";
-    }
-    else {
+    } else {
       typeEl.textContent = "(Issue)";
     }
 
@@ -84,7 +80,7 @@ var displayIssues = function (issues) {
   }
 };
 
-var displayWarning = function (repo) {
+var displayWarning = function(repo) {
   // add text to warning container
   limitWarningEl.textContent = "To see more than 30 issues, visit ";
 
@@ -98,4 +94,4 @@ var displayWarning = function (repo) {
   limitWarningEl.appendChild(linkEl);
 };
 
-getRepoName("facebook/react");
+getRepoName();
